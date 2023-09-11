@@ -1,34 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import PropTypes from "prop-types";
+
+const Card = ({ children }) => {
+  return (
+    <div className="card">
+      {children}
+    </div>
+  )
+}
+
+Card.propTypes = {
+  children: PropTypes.node,
+  updateBoard: PropTypes.func,
+  index: PropTypes.number
+};
+
+const symbols = ['🐑', '🐘', '🐫', '🐻', '🐭', '🐹', '🐰', '🐨', '🐔', '🐣',
+  '🐥', '🐧', '🐸', '🐍', '🐢', '🐲', '🐡', '🐠', '🐗', '🐮',
+  '🐷', '🐳', '🐬', '🐟', '🐚', '🐌', '🐝', '🐙', '🐜', '🐛',
+  '🐞', '🐴', '🐱', '🐯', '🐺', '🐒', '🐶', '🐩', '🐼']
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const boardEasy = symbols.slice(0, 10);
+  const boardNormal = symbols.slice(0, 20);
+  const boardHard = symbols.slice(0, 30);
+
+  const [board, setBoard] = useState(boardEasy)
+  const [boardStyle, setBoardStyle] = useState("gameEasy")
+
+  const changeBoard = (newBoard, newBoardStyle) => {
+    setBoard(newBoard);
+    setBoardStyle(newBoardStyle);
+  }
 
   return (
-    <>
+    <main className="board">
+      <h1>Memorize!</h1>
+      <section className={boardStyle}>
+        {
+          board.map((_, index) => {
+            return (
+              <Card
+                key={index}
+                index={index}
+              >
+                {board[index]}
+              </Card>
+            )
+          })
+        }
+      </section>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <button onClick={() => changeBoard(boardEasy, "gameEasy")}>Easy</button>
+        <button onClick={() => changeBoard(boardNormal, "gameNormal")}>Normal</button>
+        <button onClick={() => changeBoard(boardHard, "gameHard")}>Hard</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </main>
   )
 }
 
