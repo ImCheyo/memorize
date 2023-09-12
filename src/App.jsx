@@ -20,11 +20,21 @@ const symbols = ['🐑', '🐘', '🐫', '🐻', '🐭', '🐹', '🐰', '🐨',
   '🐷', '🐳', '🐬', '🐟', '🐚', '🐌', '🐝', '🐙', '🐜', '🐛',
   '🐞', '🐴', '🐱', '🐯', '🐺', '🐒', '🐶', '🐩', '🐼']
 
+const symbolsPair = [];
+
+for (let i = symbols.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [symbols[i], symbols[j]] = [symbols[j], symbols[i]];
+}
+
+symbols.forEach((element) => {
+  symbolsPair.push(element, element);
+});
 
 function App() {
-  const boardEasy = symbols.slice(0, 10);
-  const boardNormal = symbols.slice(0, 20);
-  const boardHard = symbols.slice(0, 30);
+  const boardEasy = symbolsPair.slice(0, 10);
+  const boardNormal = symbolsPair.slice(0, 20);
+  const boardHard = symbolsPair.slice(0, 30);
 
   const [board, setBoard] = useState(boardEasy)
   const [boardStyle, setBoardStyle] = useState("gameEasy")
