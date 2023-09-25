@@ -1,18 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-const Card = ({ children }) => {
+const Card = ({ children, isHidden, onClick }) => {
   return (
-    <div className="card">
-      {children}
+    <div className={`card ${isHidden ? "hidden" : ""}`} onClick={onClick}>
+      {isHidden ? "?" : children}
     </div>
   )
 }
 
 Card.propTypes = {
   children: PropTypes.node,
-  updateBoard: PropTypes.func,
-  index: PropTypes.number
+  isHidden: PropTypes.bool,
+  onClick: PropTypes.func
 };
 
 const symbols = ['🐑', '🐘', '🐫', '🐻', '🐭', '🐹', '🐰', '🐨', '🐔', '🐣',
@@ -20,54 +20,84 @@ const symbols = ['🐑', '🐘', '🐫', '🐻', '🐭', '🐹', '🐰', '🐨',
   '🐷', '🐳', '🐬', '🐟', '🐚', '🐌', '🐝', '🐙', '🐜', '🐛',
   '🐞', '🐴', '🐱', '🐯', '🐺', '🐒', '🐶', '🐩', '🐼']
 
-const symbolsPair = [];
-
-for (let i = symbols.length - 1; i > 0; i--) {
-  const j = Math.floor(Math.random() * (i + 1));
-  [symbols[i], symbols[j]] = [symbols[j], symbols[i]];
+function shuffleArray(array) {
+  const shuffledArray = [...array];
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  }
+  return shuffledArray;
 }
 
-symbols.forEach((element) => {
-  symbolsPair.push(element, element);
-});
+
+function generateBoard(difficulty) {
+  let boardSize = 5;
+  if (difficulty === "normal") {
+    boardSize = 10;
+  } else if (difficulty === "hard") {
+    boardSize = 15;
+  }
+
+  const shuffledSymbols = shuffleArray(symbols);
+  const board = shuffledSymbols.slice(0, boardSize);
+  const pairs = [];
+
+  for (const symbol of board) {
+    pairs.push({ symbol, isHidden: true });
+    pairs.push({ symbol, isHidden: true });
+  }
+
+  return shuffleArray(pairs);
+}
 
 function App() {
-  const boardEasy = symbolsPair.slice(0, 10);
-  const boardNormal = symbolsPair.slice(0, 20);
-  const boardHard = symbolsPair.slice(0, 30);
+  const [boardStyle, setBoardStyle] = useState("gameEasy");
+  const [board, setBoard] = useState(generateBoard("easy"));
+  const [selectedCardIndexes, setSelectedCardIndexes] = useState([]);
+  const [gameMode, setGameMode] = useState("Easy");
 
-  const [board, setBoard] = useState(boardEasy)
-  const [boardStyle, setBoardStyle] = useState("gameEasy")
-
-  const changeBoard = (newBoard, newBoardStyle) => {
+  const changeBoard = (newDifficulty) => {
+    const newBoard = generateBoard(newDifficulty);
     setBoard(newBoard);
-    setBoardStyle(newBoardStyle);
+    setBoardStyle(`game${newDifficulty.charAt(0).toUpperCase() + newDifficulty.slice(1)}`);
+    setGameMode(newDifficulty);
+  }
+
+  useEffect(() => {
+    const initialBoard = generateBoard("easy");
+    setBoard(initialBoard);
+    setGameMode("Easy");
+    console.log('useEffect')
+  }, []);
+
+  const handleCardClick = (index) => {
+    const updatedBoard = [...board];
+    updatedBoard[index].isHidden = false;
+    setBoard(updatedBoard);
+
+    setSelectedCardIndexes([...selectedCardIndexes, index]);
   }
 
   return (
     <main className="board">
-      <h1>Memorize!</h1>
+      <h1>Memorize!</h1> <br />
+      <h3>Difficulty: {gameMode.toUpperCase()}</h3> <br />
       <section className={boardStyle}>
-        {
-          board.map((_, index) => {
-            return (
-              <Card
-                key={index}
-                index={index}
-              >
-                {board[index]}
-              </Card>
-            )
-          })
-        }
+        {board.map((card, index) => (
+          <Card key={index}
+          isHidden={card.isHidden}
+          onClick={() => handleCardClick(index)}>
+            {card.symbol}
+            </Card>
+        ))}
       </section>
       <div>
-        <button onClick={() => changeBoard(boardEasy, "gameEasy")}>Easy</button>
-        <button onClick={() => changeBoard(boardNormal, "gameNormal")}>Normal</button>
-        <button onClick={() => changeBoard(boardHard, "gameHard")}>Hard</button>
+        <button onClick={() => changeBoard("easy")}>Easy</button>
+        <button onClick={() => changeBoard("normal")}>Normal</button>
+        <button onClick={() => changeBoard("hard")}>Hard</button>
       </div>
     </main>
   )
 }
 
-export default App
+export default App;
