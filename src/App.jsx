@@ -71,11 +71,28 @@ function App() {
   }, []);
 
   const handleCardClick = (index) => {
-    const updatedBoard = [...board];
-    updatedBoard[index].isHidden = false;
-    setBoard(updatedBoard);
+    if (selectedCardIndexes.length < 2) {
+      const updatedBoard = [...board];
+      updatedBoard[index].isHidden = false;
+      setBoard(updatedBoard);
 
-    setSelectedCardIndexes([...selectedCardIndexes, index]);
+      setSelectedCardIndexes([...selectedCardIndexes, index]);
+    }
+
+    if (selectedCardIndexes.length === 1) {
+      const firstIndex = selectedCardIndexes[0];
+      const secondIndex = index;
+      if (board[firstIndex].symbol !== board[secondIndex].symbol) {
+        setTimeout(() => {
+          const resetBoard = [...board];
+          resetBoard[firstIndex].isHidden = true;
+          resetBoard[secondIndex].isHidden = true;
+          setBoard(resetBoard);
+        }, 1000);
+      }
+
+      setSelectedCardIndexes([]);
+    }
   }
 
   return (
